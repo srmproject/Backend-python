@@ -1,12 +1,11 @@
-from typing import Optional
 from fastapi import FastAPI
+from config import cnf
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
+    print(cnf.POSTGRESQL_HOST)
+    print(cnf.POSTGRESQL_USER)
+    print(cnf.POSTGRESQL_PASSWORD)
     return {"Hello": "World"}
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
