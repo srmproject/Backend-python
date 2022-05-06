@@ -3,12 +3,17 @@ asgiref==3.5.0
 click==8.1.2
 colorama==0.4.4
 fastapi==0.75.2
+flake8==4.0.1
 greenlet==1.1.2
 h11==0.13.0
 idna==3.3
+mccabe==0.6.1
 psycopg2-binary==2.9.3
+pycodestyle==2.8.0
 pydantic==1.9.0
+pyflakes==2.4.0
 python-dotenv==0.20.0
+pytz==2022.1
 sniffio==1.2.0
 SQLAlchemy==1.4.36
 starlette==0.17.1
