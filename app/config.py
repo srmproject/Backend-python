@@ -4,7 +4,7 @@ from pydantic import BaseSettings, Field
 
 class GlobalConfig(BaseSettings):
     """공통 설정"""
-    ENV_STATE: Optional[str] = Field(None, env="ENV_STATE")
+    ENV_STATE: str = Field("dev", env="MODE")
 
     POSTGRESQL_HOST: Optional[str] = None
     POSTGRESQL_USER: Optional[str] = None
@@ -37,5 +37,6 @@ class FactoryConfig:
 
         elif self.env_state == "prod":
             return ProdConfig()
+
 
 cnf = FactoryConfig(GlobalConfig().ENV_STATE)()
