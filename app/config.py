@@ -9,6 +9,7 @@ class GlobalConfig(BaseSettings):
     POSTGRESQL_HOST: Optional[str] = None
     POSTGRESQL_USER: Optional[str] = None
     POSTGRESQL_PASSWORD: Optional[str] = None
+    POSTGRESQL_DB: Optional[str] = None
 
     class Config:
         """BaseSettings 설정"""
