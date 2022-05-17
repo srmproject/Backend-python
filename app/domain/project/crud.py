@@ -2,7 +2,10 @@ from sqlalchemy.orm import Session
 from domain.project.schemas import RequestCreateProject
 from sqlalchemy import exc, text
 import exceptions
+from logger import getLogger
 
+
+log = getLogger()
 
 def createProject(request: RequestCreateProject, db: Session):
     '''프로젝트 생성'''
@@ -16,13 +19,13 @@ def createProject(request: RequestCreateProject, db: Session):
             "name": request.name
         })
         db.commit()
-        print(f"create project sucess: {request.name}")
+        log.info(f"create project sucess: {request.name}")
     except exc.IntegrityError as e:
-        print("[-] Data is already in DB")
+        log.error("[-] Data is already in DB")
         db.rollback()
         raise exceptions.DBItemAlreadyExist("Data is already in DB")        
     except Exception as e:
-        print(f"[-] other error: {e}")
+        log.error(f"[-] other error: {e}")
         db.rollback()
         raise RuntimeError
 
