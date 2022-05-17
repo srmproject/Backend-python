@@ -21,7 +21,7 @@ def createProject(request: RequestCreateProject, db: Session):
         db.commit()
         log.info(f"create project sucess: {request.name}")
     except exc.IntegrityError as e:
-        log.error("[-] Data is already in DB")
+        log.error(f"[-] Data is already in DB: {e}")
         db.rollback()
         raise exceptions.DBItemAlreadyExist("Data is already in DB")        
     except Exception as e:
