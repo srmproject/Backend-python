@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from config import cnf
 from api.project import router as project_router
-from logger import getLogger
+from logger import log
 
 
 app = FastAPI()
 app.include_router(project_router)
-log = getLogger()
 
 @app.get("/")
 def read_root():

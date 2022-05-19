@@ -2,10 +2,8 @@ from sqlalchemy.orm import Session
 from domain.project.schemas import RequestCreateProject
 from sqlalchemy import exc, text
 import exceptions
-from logger import getLogger
+from logger import log
 
-
-log = getLogger()
 
 def createProject(request: RequestCreateProject, db: Session):
     '''프로젝트 생성'''
