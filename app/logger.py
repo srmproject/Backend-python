@@ -1,14 +1,13 @@
 import logging
+import yaml
 
 
 def getLogger():
     '''로거 생성'''
-    log = logging.getLogger()
-    log.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    with open('log.yaml', 'r') as f:
+        config = yaml.safe_load(f)
 
-    stream_hander = logging.StreamHandler()
-    stream_hander.setFormatter(formatter)
-    log.addHandler(stream_hander)
+    logging.config.dictConfig(config)
+    log = logging.getLogger('simple')
 
     return log
