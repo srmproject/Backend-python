@@ -4,7 +4,7 @@ from pydantic import BaseSettings, Field
 
 class GlobalConfig(BaseSettings):
     """공통 설정"""
-    ENV_STATE: str = Field("dev", env="MODE")
+    ENV_STATE: str = Field("local", env="MODE")
 
     POSTGRESQL_HOST: Optional[str] = None
     POSTGRESQL_USER: Optional[str] = None
@@ -14,6 +14,12 @@ class GlobalConfig(BaseSettings):
     class Config:
         """BaseSettings 설정"""
         env_file: str = ".env"
+
+class LocalConfig(GlobalConfig):
+    """개발 설정"""
+    class Config:
+        """BaseSettings 설정"""
+        env_prefix: str = "LOCAL_"
 
 class DevConfig(GlobalConfig):
     """개발 설정"""
@@ -33,6 +39,9 @@ class FactoryConfig:
         self.env_state = env_state
 
     def __call__(self):
+        if self.env_state == "local":
+            return LocalConfig()
+
         if self.env_state == "dev":
             return DevConfig()
 
