@@ -4,9 +4,8 @@ from db_session import get_db
 from domain.project.schemas import (
     RequestCreateProject
 )
-from domain.project.crud import (
-    createProject
-)
+from domain.project.service import createProject
+
 
 router = APIRouter(
     prefix="/api/v1/project",
