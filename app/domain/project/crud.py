@@ -6,7 +6,7 @@ from logger import log
 
 
 def createProject(request: RequestCreateProject, db: Session):
-    '''프로젝트 생성'''
+    """프로젝트 생성"""
     try:
         statement = text("""
         INSERT INTO 
@@ -17,7 +17,7 @@ def createProject(request: RequestCreateProject, db: Session):
             "name": request.name
         })
         db.commit()
-        log.info(f"create project sucess: {request.name}")
+        log.info(f"create project success: {request.name}")
     except exc.IntegrityError as e:
         log.error(f"[-] Data is already in DB: {e}")
         db.rollback()
