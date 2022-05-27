@@ -4,6 +4,7 @@ from domain.project.schemas import (
     RequestCreateProject,
     ResponseCreateProject
 )
+import domain.project.crud as project_crud
 from logger import log
 from module.k8s import JCPK8S
 
@@ -50,10 +51,15 @@ class ProjectManager:
         # createRepo(repo_name=request.name, token=request.github_token)
 
         # db 업데이트
-        # try:
-        #     project_crud.createProject(request=request, db=db)
-        # except Exception as e:
-        #     log.error("db Error")
+        try:
+            project_crud.createProject(request=request, db=db)
+        except Exception as e:
+            log.error(f"[프로젝트 생성 오류] 데이터베이스 오류: {e}")
+            return status.HTTP_500_INTERNAL_SERVER_ERROR, \
+                   ResponseCreateProject(
+                       name=request.name,
+                       error_detail="프로젝트 생성을 실패했습니다."
+                   )
 
         return status.HTTP_201_CREATED, \
                ResponseCreateProject(
@@ -61,7 +67,7 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def createProjectValid(self, namespace:str) -> bool:
+    def createProjectValid(self, namespace: str) -> bool:
         """
         프로젝트 생성 유효성 검사
           ① k8s namespace 확인
