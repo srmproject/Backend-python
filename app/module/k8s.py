@@ -20,13 +20,4 @@ class JCPK8S:
         '''
         ns = client.V1Namespace()
         ns.metadata = client.V1ObjectMeta(name=name)
-        log.info(f"namespace {name} 생성 시작")
-        try:
-            self.v1.create_namespace(ns)
-            log.info("namespace 생성 성공")
-        except ApiException as e:
-            if e.status == 409:
-                log.error(f"[-] namespace {name} 생성 중복오류")
-            log.error(f"[-] namespace {name} 생성 기타 api오류: {e.status}")
-        except Exception as e:
-            log.error(f"[-]namespace {name} 생성 기타오류: {e}")
+        self.v1.create_namespace(ns)
