@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from db_session import get_db
 from domain.project.schemas import (
     RequestCreateProject,
-    RequestDeleteProject
+    RequestDeleteProject,
+    RequestGetProject
 )
 from domain.project.service import ProjectManager
 from logger import log
@@ -28,8 +29,10 @@ async def project(
             content="이름을 입력하지 않았습니다"
         )
 
+    request = RequestGetProject(name=name)
+
     try:
-        status_code, detail = project_manager.getProject(namespace=name, db=db)
+        status_code, detail = project_manager.getProject(request=request, db=db)
     except Exception as e:
         log.error(f"[프로젝트 조회 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(

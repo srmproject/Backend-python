@@ -5,7 +5,8 @@ from domain.project.schemas import (
     ResponseCreateProject,
     RequestDeleteProject,
     ResponseDeleteProject,
-    ResponseGetProject
+    ResponseGetProject,
+    RequestGetProject
 )
 import domain.project.crud as project_crud
 from logger import log
@@ -92,26 +93,26 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def getProject(self, namespace: str, db) -> (int, ResponseGetProject):
+    def getProject(self, request: RequestGetProject, db) -> (int, ResponseGetProject):
         """프로젝트 조회"""
 
         try:
-            result = project_crud.getProject(namespace=namespace, db=db)
+            result = project_crud.getProject(requset=request, db=db)
         except Exception as e:
-            log.error(f"[프로젝트 조회 오류] {namespace} 조회 실패 -> 데이터베이스 오류: {e}")
+            log.error(f"[프로젝트 조회 오류] {request.name} 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseGetProject(
                        id=-1,
-                       name=namespace,
+                       name=request.name,
                        error_detail="프로젝트 조회를 실패했습니다."
                    )
 
         if result.rowcount != 1:
-            log.error(f"[프로젝트 조회 실패] 단일건 조회({namespace})지만 2개 이상 조회 되었습니다")
+            log.error(f"[프로젝트 조회 실패] 단일건 조회({request.name})지만 2개 이상 조회 되었습니다")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseGetProject(
                        id=-1,
-                       name=namespace,
+                       name=request.name,
                        error_detail="프로젝트 조회를 실패했습니다"
                    )
 

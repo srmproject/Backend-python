@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from domain.project.schemas import (
     RequestCreateProject,
-    RequestDeleteProject
+    RequestDeleteProject,
+    RequestGetProject
 )
 from sqlalchemy import exc, text
 from logger import log
@@ -49,16 +50,19 @@ def deleteProject(request: RequestDeleteProject, db: Session):
         db.rollback()
         raise RuntimeError(e)
 
-def getProject(namespace: str, db: Session):
+def getProject(request: RequestGetProject, db: Session):
     """프로젝트 조회"""
     try:
         statement = text("""
-        SELECT id, name, description from projects where name=(:name)
+        SELECT id, name, description 
+        from projects 
+        where user_id=(:user_id) and name=(:name)
         """)
         row = db.execute(statement, {
-            "name": namespace
+            "user_id": request.user_id,
+            "name": request.name
         })
-        log.info(f"get project success: {namespace}")
+        log.info(f"get project success: {request.name}")
     except exc.IntegrityError as e:
         log.error(f"[-] {e}이 project table에 없습니다.: {e}")
         raise RuntimeError(e)

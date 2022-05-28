@@ -1,6 +1,11 @@
 from pydantic import BaseModel
 
 
+class RequestGetProject(BaseModel):
+    """프로젝트 조회 요청"""
+    user_id: int = 1  # 테스트 user_id
+    name: str
+
 class ResponseGetProject(BaseModel):
     """프로젝트 조회 응답"""
     id: str
