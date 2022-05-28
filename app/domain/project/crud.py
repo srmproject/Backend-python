@@ -22,13 +22,12 @@ def createProject(request: RequestCreateProject, db: Session):
         db.commit()
         log.info(f"create project success: {request.name}")
     except exc.IntegrityError as e:
-        log.error(f"[-] Data is already in DB: {e}")
         db.rollback()
-        raise RuntimeError
+        raise RuntimeError(e)
     except Exception as e:
         log.error(f"[-] other error: {e}")
         db.rollback()
-        raise RuntimeError
+        raise RuntimeError(e)
 
 def deleteProject(request: RequestDeleteProject, db: Session):
     """프로젝트 삭제"""
@@ -44,11 +43,10 @@ def deleteProject(request: RequestDeleteProject, db: Session):
     except exc.IntegrityError as e:
         log.error(f"[-] {e}이 project table에 없습니다.: {e}")
         db.rollback()
-        raise RuntimeError
+        raise RuntimeError(e)
     except Exception as e:
-        log.error(f"[-] other error: {e}")
         db.rollback()
-        raise RuntimeError
+        raise RuntimeError(e)
 
 def getProject(namespace: str, db: Session):
     """프로젝트 조회"""
@@ -62,9 +60,9 @@ def getProject(namespace: str, db: Session):
         log.info(f"get project success: {namespace}")
     except exc.IntegrityError as e:
         log.error(f"[-] {e}이 project table에 없습니다.: {e}")
-        raise RuntimeError
+        raise RuntimeError(e)
     except Exception as e:
         log.error(f"[-] other error: {e}")
-        raise RuntimeError
+        raise RuntimeError(e)
     else:
         return row
