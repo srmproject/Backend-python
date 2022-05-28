@@ -1,7 +1,5 @@
 from kubernetes import client, config
 from config import cnf
-from logger import log
-from kubernetes.client.exceptions import ApiException
 
 
 class JCPK8S:
@@ -11,13 +9,24 @@ class JCPK8S:
         
         self.v1 = client.CoreV1Api()
         
-    def createNamspace(self, name):
-        '''
-        namespace생성
-        
-        :params
-          name: namespace 이름
-        '''
+    def createNamespace(self, namespace) -> None:
+        """
+        namespace 생성
+
+        :param
+          namespace: namespace 이름
+        """
         ns = client.V1Namespace()
-        ns.metadata = client.V1ObjectMeta(name=name)
+        ns.metadata = client.V1ObjectMeta(name=namespace)
         self.v1.create_namespace(ns)
+
+    def deleteNamespace(self, namespace) -> None:
+        """
+        namespace 삭제
+
+        :param
+          namespace: namespace 이름
+        :return:
+        """
+        ns = client.V1Namespace()
+        self.v1.delete_namespace(namespace)

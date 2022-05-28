@@ -2,7 +2,9 @@ from fastapi import status
 from kubernetes.client.exceptions import ApiException
 from domain.project.schemas import (
     RequestCreateProject,
-    ResponseCreateProject
+    ResponseCreateProject,
+    RequestDeleteProject,
+    ResponseDeleteProject
 )
 import domain.project.crud as project_crud
 from logger import log
@@ -11,18 +13,7 @@ from module.k8s import JCPK8S
 
 class ProjectManager:
     def createProject(self, request: RequestCreateProject, db) -> (int, ResponseCreateProject):
-        """
-        프로젝트 생성
-
-        :params
-          request: 사용자 요청 파라미터
-          db: db 세션
-
-        :return
-        bool
-            True: 프로젝트 생성 성공
-            False: 프로젝트 생성 실패
-        """
+        """프로젝트 생성"""
         k8s = JCPK8S()
 
         if not self.createProjectValid(namespace=request.name):
@@ -30,7 +21,7 @@ class ProjectManager:
 
         # 쿠버네티스 namespace 생성
         try:
-            k8s.createNamspace(name=request.name)
+            k8s.createNamespace(namespace=request.name)
         except ApiException as e:
             if e.status == 409:
                 log.error(f"[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다.")
@@ -63,6 +54,28 @@ class ProjectManager:
 
         return status.HTTP_201_CREATED, \
                ResponseCreateProject(
+                   name=request.name,
+                   error_detail=""
+               )
+
+    def deleteProject(self, request: RequestDeleteProject, db) -> (int, ResponseDeleteProject):
+        """프로젝트 삭제"""
+        k8s = JCPK8S()
+
+        # 쿠버네티스 네임스페이스 삭제
+        try:
+            k8s.deleteNamespace(namespace=request.name)
+        except ApiException as e:
+            pass
+
+        # DB행 삭제
+        try:
+            project_crud.deleteProject(request=request, db=db)
+        except Exception as e:
+            pass
+
+        return status.HTTP_200_OK, \
+               ResponseDeleteProject(
                    name=request.name,
                    error_detail=""
                )

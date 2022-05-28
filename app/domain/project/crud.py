@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
-from domain.project.schemas import RequestCreateProject
+from domain.project.schemas import (
+    RequestCreateProject,
+    RequestDeleteProject
+)
 from sqlalchemy import exc, text
-import exceptions
 from logger import log
 
 
@@ -21,9 +23,30 @@ def createProject(request: RequestCreateProject, db: Session):
     except exc.IntegrityError as e:
         log.error(f"[-] Data is already in DB: {e}")
         db.rollback()
-        raise exceptions.DBItemAlreadyExist("Data is already in DB")        
+        raise RuntimeError
     except Exception as e:
         log.error(f"[-] other error: {e}")
         db.rollback()
         raise RuntimeError
+
+def deleteProject(request: RequestDeleteProject, db: Session):
+    """프로젝트 삭제"""
+    try:
+        statement = text("""
+        DELETE FROM projects where name=(:name)
+        """)
+        db.execute(statement, {
+            "name": request.name
+        })
+        db.commit()
+        log.info(f"delete project success: {request.name}")
+    except exc.IntegrityError as e:
+        log.error(f"[-] {e}이 project table에 없습니다.: {e}")
+        db.rollback()
+        raise RuntimeError
+    except Exception as e:
+        log.error(f"[-] other error: {e}")
+        db.rollback()
+        raise RuntimeError
+
 
