@@ -9,7 +9,7 @@ class ResponseGetProject(BaseModel):
 
 class RequestCreateProject(BaseModel):
     """프로젝트 생성 요청"""
-    user_id: int = 1
+    user_id: int = 1  # 테스트 user_id
     name: str
 
 class ResponseCreateProject(BaseModel):
@@ -19,6 +19,7 @@ class ResponseCreateProject(BaseModel):
 
 class RequestDeleteProject(BaseModel):
     """프로젝트 삭제 요청"""
+    user_id: int = 1  # 테스트 user_id
     name: str
 
 class ResponseDeleteProject(BaseModel):

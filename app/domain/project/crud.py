@@ -33,9 +33,10 @@ def deleteProject(request: RequestDeleteProject, db: Session):
     """프로젝트 삭제"""
     try:
         statement = text("""
-        DELETE FROM projects where name=(:name)
+        DELETE FROM projects where user_id=(:user_id) and name=(:name)
         """)
         db.execute(statement, {
+            "user_id": request.user_id,
             "name": request.name
         })
         db.commit()
