@@ -19,7 +19,7 @@ async def project():
     """프로젝트 조회"""  
     return {"msg": "get"}
 
-@router.post("/create")
+@router.post("/")
 async def create(
     request: RequestCreateProject, db: Session = Depends(get_db)
     ):
