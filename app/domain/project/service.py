@@ -25,14 +25,14 @@ class ProjectManager:
             k8s.createNamespace(namespace=request.name)
         except ApiException as e:
             if e.status == 409:
-                log.error(f"[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다.")
+                log.error("[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다")
                 return status.HTTP_409_CONFLICT, \
                        ResponseCreateProject(
                            name=request.name,
                            error_detail=f"{request.name}이 이미 존재합니다."
                        )
 
-            log.error(f"[프로젝트 생성 오류] k8s namespace {request.name} 기타 생성오류: {e}")
+            log.error(f"[프로젝트 생성 오류] k8s namespace {request.name} 기타 생성오류: {e.status}. {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseCreateProject(
                        name=request.name,
@@ -46,7 +46,11 @@ class ProjectManager:
         try:
             project_crud.createProject(request=request, db=db)
         except Exception as e:
-            log.error(f"[프로젝트 생성 오류] 데이터베이스 오류: {e}")
+            db_error_code = e.args[0].orig.pgcode
+            if db_error_code == "23503":
+                log.error(f"[프로젝트 생성 오류] 데이터베이스 오류: user_id가 존재하지 않음 {db_error_code}->{e}")
+            else:
+                log.error(f"[프로젝트 생성 오류] 데이터베이스 오류: 기타에러 {e.args[0].code}->{e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseCreateProject(
                        name=request.name,
