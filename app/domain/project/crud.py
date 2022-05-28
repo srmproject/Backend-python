@@ -12,11 +12,12 @@ def createProject(request: RequestCreateProject, db: Session):
     try:
         statement = text("""
         INSERT INTO 
-            projects (name, created_at, updated_at) 
-            VALUES(:name, CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+            projects (name, user_id, created_at, updated_at) 
+            VALUES(:name, :user_id ,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
         """)
         db.execute(statement, {
-            "name": request.name
+            "name": request.name,
+            "user_id": request.user_id
         })
         db.commit()
         log.info(f"create project success: {request.name}")
