@@ -4,7 +4,8 @@ from domain.project.schemas import (
     RequestCreateProject,
     ResponseCreateProject,
     RequestDeleteProject,
-    ResponseDeleteProject
+    ResponseDeleteProject,
+    ResponseGetProject
 )
 import domain.project.crud as project_crud
 from logger import log
@@ -77,6 +78,40 @@ class ProjectManager:
         return status.HTTP_200_OK, \
                ResponseDeleteProject(
                    name=request.name,
+                   error_detail=""
+               )
+
+    def getProject(self, namespace: str, db) -> (int, ResponseGetProject):
+        """프로젝트 조회"""
+
+        try:
+            result = project_crud.getProject(namespace=namespace, db=db)
+        except Exception as e:
+            log.error(f"[프로젝트 조회 오류] {namespace} 조회 실패 -> 데이터베이스 오류: {e}")
+            return status.HTTP_500_INTERNAL_SERVER_ERROR, \
+                   ResponseGetProject(
+                       id=-1,
+                       name=namespace,
+                       error_detail="프로젝트 조회를 실패했습니다."
+                   )
+
+        if result.rowcount != 1:
+            log.error(f"[프로젝트 조회 실패] 단일건 조회({namespace})지만 2개 이상 조회 되었습니다")
+            return status.HTTP_500_INTERNAL_SERVER_ERROR, \
+                   ResponseGetProject(
+                       id=-1,
+                       name=namespace,
+                       error_detail="프로젝트 조회를 실패했습니다"
+                   )
+
+        searched_project = {}
+        for row in result:
+            searched_project = dict(row)
+
+        return status.HTTP_200_OK, \
+               ResponseGetProject(
+                   id=searched_project["id"],
+                   name=searched_project["name"],
                    error_detail=""
                )
 

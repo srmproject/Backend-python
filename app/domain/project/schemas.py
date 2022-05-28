@@ -1,6 +1,12 @@
 from pydantic import BaseModel
 
 
+class ResponseGetProject(BaseModel):
+    """프로젝트 조회 응답"""
+    id: str
+    name: str
+    error_detail: str
+
 class RequestCreateProject(BaseModel):
     """프로젝트 생성 요청"""
     name: str

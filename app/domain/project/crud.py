@@ -49,4 +49,21 @@ def deleteProject(request: RequestDeleteProject, db: Session):
         db.rollback()
         raise RuntimeError
 
-
+def getProject(namespace: str, db: Session):
+    """프로젝트 조회"""
+    try:
+        statement = text("""
+        SELECT id, name, description from projects where name=(:name)
+        """)
+        row = db.execute(statement, {
+            "name": namespace
+        })
+        log.info(f"get project success: {namespace}")
+    except exc.IntegrityError as e:
+        log.error(f"[-] {e}이 project table에 없습니다.: {e}")
+        raise RuntimeError
+    except Exception as e:
+        log.error(f"[-] other error: {e}")
+        raise RuntimeError
+    else:
+        return row
