@@ -25,7 +25,7 @@ class ProjectManager:
             k8s.createNamespace(namespace=request.name)
         except ApiException as e:
             if e.status == 409:
-                log.error("[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다")
+                log.error(f"[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다")
                 return status.HTTP_409_CONFLICT, \
                        ResponseCreateProject(
                            name=request.name,
@@ -51,6 +51,13 @@ class ProjectManager:
                 log.error(f"[프로젝트 생성 오류] 데이터베이스 오류: user_id가 존재하지 않음 {db_error_code}->{e}")
             else:
                 log.error(f"[프로젝트 생성 오류] 데이터베이스 오류: 기타에러 {e.args[0].code}->{e}")
+
+            # 생성했던 쿠버네티스 네임스페이스 삭제
+            try:
+                k8s.deleteNamespace(namespace=request.name)
+            except Exception:
+                pass
+
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseCreateProject(
                        name=request.name,
