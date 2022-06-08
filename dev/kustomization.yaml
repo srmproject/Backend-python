@@ -8,7 +8,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/rules/0/host
-        value: dev-core.choilab.xyz
+        value: dev-backend.choilab.xyz
 
 namePrefix: dev-
 
