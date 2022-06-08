@@ -1,12 +1,17 @@
 from kubernetes import client, config
 from config import cnf
+from logger import log
 
 
 class JCPK8S:
     def __init__(self):
+        log.info("[*][*] 쿠버네티스 설정 로드 시작")
         if cnf.ENV_STATE == "local":
+            log.info("[*][*] local 설정 로드")
             config.load_kube_config()
-        
+        elif cnf.ENV_STATE == "dev":
+            log.info("[*][*] dev 설정 로드")
+            config.load_incluster_config()
         self.v1 = client.CoreV1Api()
         
     def createNamespace(self, namespace) -> None:
