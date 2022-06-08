@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-python
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: core.choilab.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-python
+            port:
+              number: 80

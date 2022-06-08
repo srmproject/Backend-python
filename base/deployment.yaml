@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-python
+spec:
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: backend-python
+  template:
+    metadata:
+      labels:
+        app: backend-python
+    spec:
+      nodeSelector:
+        role: infra
+      containers:
+      - name: core
+        image: core-image
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "0.5"
+        ports:
+        - containerPort: 80
