@@ -12,6 +12,7 @@ spec:
       labels:
         app: backend-python
     spec:
+      serviceAccount: "backend"
       nodeSelector:
         role: infra
       containers:
