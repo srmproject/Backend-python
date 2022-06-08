@@ -17,13 +17,18 @@ class ProjectManager:
     def createProject(self, request: RequestCreateProject, db) -> (int, ResponseCreateProject):
         """프로젝트 생성"""
         k8s = JCPK8S()
+        log.info("[*] 프로젝트 생성 시작")
 
+        log.info("[*] 프로젝트 유효성검사 시작")
         if not self.createProjectValid(namespace=request.name):
             return False
+        log.info("[*] 프로젝트 유효성검사 종료")
 
         # 쿠버네티스 namespace 생성
         try:
+            log.info("[*] 쿠버네티스 namespace 생성 시작")
             k8s.createNamespace(namespace=request.name)
+            log.info("[*] 쿠버네티스 namespace 생성 종료")
         except ApiException as e:
             if e.status == 409:
                 log.error(f"[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다")
@@ -45,7 +50,9 @@ class ProjectManager:
 
         # db 업데이트
         try:
+            log.info("[*] 프로젝트 DB 등록 시작")
             project_crud.createProject(request=request, db=db)
+            log.info("[*] 프로젝트 DB 등록 종료")
         except Exception as e:
             db_error_code = e.args[0].orig.pgcode
             if db_error_code == "23503":
