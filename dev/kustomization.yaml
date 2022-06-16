@@ -1,6 +1,5 @@
 bases:
   - ../base
-
 patches:
   - target:
       kind: Ingress
@@ -9,17 +8,12 @@ patches:
       - op: replace
         path: /spec/rules/0/host
         value: dev-backend.choilab.xyz
-
 namePrefix: dev-
-
 configurations:
   - nameReference.yaml
-
 commonLabels:
   app: dev-backend-python
-
 images:
   - name: core-image
     newName: 192.168.0.66:31831/python-backend
     newTag: dev0.1.9
-
