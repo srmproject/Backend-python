@@ -49,7 +49,9 @@ pipeline {
         stage('change image:tag') {
             steps {
                 dir("dev") {
-                    tmp_image_name="${REGISTRY}/${docker_image_name}" yq -i '.images[0].newName = env(tmp_image_name)' kustomization.yaml
+                    sh """
+                        tmp_image_name="${REGISTRY}/${docker_image_name}" yq -i '.images[0].newName = env(tmp_image_name)' kustomization.yaml
+                    """
 
                     withCredentials([sshUserPrivateKey(credentialsId: "JCP-FRONTEND-CORE-SSHKEY", keyFileVariable: "SSH_KEY")]) {
                         sh """
