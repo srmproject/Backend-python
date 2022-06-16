@@ -87,7 +87,7 @@ pipeline {
 
                             git config --local user.email "myjenkins@admin.com"
                             git config --local user.name "jenkins"
-                            git commit -m 'change image:tag'
+                            git commit --allow-empty -m 'change image:tag'
 
                             git remote -v
                             git remote add target git@github.com:srmproject/Backend-python.git
