@@ -18,7 +18,7 @@ pipeline {
                 sh "rm -rf ./Dockerfile"
                 sh "cp ./cicd/dev/Dockerfile ./Dockerfile"
                 script {
-                    tag = sh(script: "git tag -l | tail -1 | tr -d \'\\n\'", returnStdout: true)
+                    tag = sh(script: "echo ${env.BUILD_NUMBER} | tr -d \'\\n\'", returnStdout: true)
                     docker_image_name = sh(script: "echo ${env.JOB_BASE_NAME} | tr -d \'\\n\'", returnStdout: true)
                 }
             }
@@ -49,35 +49,7 @@ pipeline {
         stage('change image:tag') {
             steps {
                 dir("dev") {
-                    sh """
-                    cat <<EOF > kustomization.yaml
-                    bases:
-                      - ../base
-
-                    patches:
-                      - target:
-                          kind: Ingress
-                          name: backend-python
-                        patch: |-
-                          - op: replace
-                            path: /spec/rules/0/host
-                            value: dev-backend.choilab.xyz
-
-                    namePrefix: dev-
-
-                    configurations:
-                      - nameReference.yaml
-
-                    commonLabels:
-                      app: dev-backend-python
-
-                    images:
-                      - name: core-image
-                        newName: ${REGISTRY}/${docker_image_name}
-                        newTag: ${tag}
-
-                    EOF
-                    """.stripIndent()
+                    tmp_image_name="${REGISTRY}/${docker_image_name}" yq -i '.images[0].newName = env(tmp_image_name)' kustomization.yaml
 
                     withCredentials([sshUserPrivateKey(credentialsId: "JCP-FRONTEND-CORE-SSHKEY", keyFileVariable: "SSH_KEY")]) {
                         sh """
