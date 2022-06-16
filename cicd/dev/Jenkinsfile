@@ -2,9 +2,17 @@ pipeline {
     agent any
     environment {
         MODE = "dev"
+        WEBHOOK_URL = credentials("DISCORD_WEBHOOK")
     }
-
     stages {
+        stage('alarm') {
+            steps {
+                discordSend description: "job이름: ${env.JOB_BASE_NAME}",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "젠킨스 잡이 실행되었습니다.",
+                            webhookURL: env.WEBHOOK_URL
+            }
+        }
         stage('pre build') {
             steps {
                 sh "rm -rf ./Dockerfile"
@@ -89,6 +97,20 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+    post {
+        success {
+            discordSend description: "job이름: ${env.JOB_BASE_NAME}",
+                        link: env.BUILD_URL, result: currentBuild.currentResult,
+                        title: "job이 성공했습니다.",
+                        webhookURL: env.WEBHOOK_URL
+        }
+        failure {
+            discordSend description: "job이름: ${env.JOB_BASE_NAME}",
+                        link: env.BUILD_URL, result: currentBuild.currentResult,
+                        title: "job이 실패했습니다.",
+                        webhookURL: env.WEBHOOK_URL
         }
     }
 }
