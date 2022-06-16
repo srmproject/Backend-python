@@ -17,3 +17,4 @@ images:
   - name: core-image
     newName: 192.168.0.66:31831/python-backend
     newTag: dev0.1.9
+    newTage: 20
