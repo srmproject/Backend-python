@@ -60,8 +60,8 @@ pipeline {
                             ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
                             git add kustomization.yaml
 
-                            git config --local user.email "myjenkins@admin.com"
-                            git config --local user.name "jenkins"
+                            git config --local user.email "jenkins_bot@jcp.com"
+                            git config --local user.name "jenkins_bot"
                             git commit --allow-empty -m 'change image:tag'
 
                             git remote -v
