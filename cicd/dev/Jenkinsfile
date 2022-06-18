@@ -51,7 +51,7 @@ pipeline {
                 dir("dev") {
                     sh """
                         tmp_image_name="${REGISTRY}/${docker_image_name}" yq -i '.images[0].newName = env(tmp_image_name)' kustomization.yaml
-                        tmp_image_tag="${tag}" yq -i '.images[0].newTage = env(tmp_image_tag)' kustomization.yaml
+                        tmp_image_tag="${tag}" yq -i '.images[0].newTag = env(tmp_image_tag)' kustomization.yaml
                     """
 
                     withCredentials([sshUserPrivateKey(credentialsId: "JCP-FRONTEND-CORE-SSHKEY", keyFileVariable: "SSH_KEY")]) {
