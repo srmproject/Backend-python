@@ -60,9 +60,9 @@ def getProject(request: RequestGetProject, db: Session):
         """)
         row = db.execute(statement, {
             "user_id": request.user_id,
-            "name": request.name
+            "name": request.project_name
         })
-        log.info(f"get project success: {request.name}")
+        log.info(f"get project success: {request.project_name}")
     except exc.IntegrityError as e:
         log.error(f"[-] {e}이 project table에 없습니다.: {e}")
         raise RuntimeError(e)

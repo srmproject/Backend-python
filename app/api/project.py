@@ -39,17 +39,17 @@ async def getAll(db: Session = Depends(get_db)):
 
 @router.get("/project")
 async def get(
-    name: Union[str, None] = None, user_id: Union[str, None] = None, db: Session = Depends(get_db)
+    project_name: Union[str, None] = None, user_id: Union[str, None] = None, db: Session = Depends(get_db)
     ):
     """프로젝트 단일조회"""
     log.info("============= /project/ is called ============= ")
     project_manager = ProjectManager()
 
-    if name is None:
+    if project_name is None:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
-                "error_detail": "이름을 입력하지 않았습니다"
+                "error_detail": "프로젝트 이름을 입력하지 않았습니다"
             }
         )
 
@@ -62,7 +62,7 @@ async def get(
         )
 
     request = RequestGetProject(
-        name=name,
+        project_name=project_name,
         user_id=user_id
     )
 

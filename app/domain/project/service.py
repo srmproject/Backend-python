@@ -22,30 +22,30 @@ class ProjectManager:
         log.info("[*] 프로젝트 생성 시작")
 
         log.info("[*] 프로젝트 유효성검사 시작")
-        if not self.createProjectValid(namespace=request.name):
+        if not self.createProjectValid(namespace=request.project_name):
             return False
         log.info("[*] 프로젝트 유효성검사 종료")
 
         # 쿠버네티스 namespace 생성
         try:
             log.info("[*] 쿠버네티스 namespace 생성 시작")
-            k8s.createNamespace(namespace=request.name)
+            k8s.createNamespace(namespace=request.project_name)
             log.info("[*] 쿠버네티스 namespace 생성 종료")
         except ApiException as e:
             if e.status == 409:
-                log.error(f"[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다")
+                log.error(f"[프로젝트 생성 오류] k8s namespace {request.project_name}이 이미 존재합니다")
                 return status.HTTP_409_CONFLICT, \
                        ResponseCreateProject(
                            user_id=request.user_id,
-                           name=request.name,
-                           error_detail=f"{request.name}이 이미 존재합니다."
+                           project_name=request.project_name,
+                           error_detail=f"{request.project_name}이 이미 존재합니다."
                        )
 
-            log.error(f"[프로젝트 생성 오류] k8s namespace {request.name} 기타 생성오류: {e.status}. {e}")
+            log.error(f"[프로젝트 생성 오류] k8s namespace {request.project_name} 기타 생성오류: {e.status}. {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseCreateProject(
                        user_id=request.user_id,
-                       name=request.name,
+                       project_name=request.project_name,
                        error_detail=str(e)
                    )
 
@@ -66,21 +66,21 @@ class ProjectManager:
 
             # 생성했던 쿠버네티스 네임스페이스 삭제
             try:
-                k8s.deleteNamespace(namespace=request.name)
+                k8s.deleteNamespace(namespace=request.project_name)
             except Exception:
                 pass
 
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseCreateProject(
                        user_id=request.user_id,
-                       name=request.name,
+                       project_name=request.project_name,
                        error_detail="프로젝트 생성을 실패했습니다."
                    )
 
         return status.HTTP_201_CREATED, \
                ResponseCreateProject(
                    user_id=request.user_id,
-                   name=request.name,
+                   name=request.project_name,
                    error_detail=""
                )
 
@@ -90,7 +90,7 @@ class ProjectManager:
 
         # 쿠버네티스 네임스페이스 삭제
         try:
-            k8s.deleteNamespace(namespace=request.name)
+            k8s.deleteNamespace(namespace=request.project_name)
         except ApiException as e:
             pass
 
@@ -103,7 +103,7 @@ class ProjectManager:
         return status.HTTP_200_OK, \
                ResponseDeleteProject(
                    user_id=request.user_id,
-                   name=request.name,
+                   project_name=request.project_name,
                    error_detail=""
                )
 
@@ -113,22 +113,22 @@ class ProjectManager:
         try:
             result = project_crud.getProject(request=request, db=db)
         except Exception as e:
-            log.error(f"[프로젝트 조회 오류] {request.name} 조회 실패 -> 데이터베이스 오류: {e}")
+            log.error(f"[프로젝트 조회 오류] {request.project_name} 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseGetProject(
                        id=-1,
                        user_id=-1,
-                       name=request.name,
+                       name=request.project_name,
                        error_detail="프로젝트 조회를 실패했습니다."
                    )
 
         if result.rowcount != 1:
-            log.error(f"[프로젝트 조회 실패] 단일건 조회({request.name})지만 2개 이상 조회 되었습니다")
+            log.error(f"[프로젝트 조회 실패] 단일건 조회({request.project_name})지만 2개 이상 조회 되었습니다")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseGetProject(
                        id=-1,
                        user_id=-1,
-                       name=request.name,
+                       name=request.project_name,
                        error_detail="프로젝트 조회를 실패했습니다"
                    )
 
@@ -140,7 +140,7 @@ class ProjectManager:
                ResponseGetProject(
                    project_id=project["id"],
                    user_id=project["user_id"],
-                   name=project["name"],
+                   project_name=project["name"],
                    error_detail=""
                )
 
@@ -163,7 +163,7 @@ class ProjectManager:
                 ProjectInfo(
                     project_id=project["id"],
                     user_id=project["user_id"],
-                    name=project["name"]
+                    project_name=project["name"]
                 )
             )
 
