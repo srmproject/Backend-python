@@ -18,13 +18,24 @@ router = APIRouter(
 )
 
 @router.get("/projects")
-async def getAll(db: Session = Depends(get_db)):
+async def getAll(
+        user_id: Union[str, None] = None,
+        db: Session = Depends(get_db)):
     """프로젝트 전체조회"""
-    log.info("============= /project/getALL is called ============= ")
+    log.info("============= /projects is called ============= ")
+
+    if user_id is None:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "error_detail": "유저를 입력하지 않았습니다."
+            }
+        )
+
     project_manager = ProjectManager()
 
     try:
-        status_code, detail = project_manager.getProjects(db=db)
+        status_code, detail = project_manager.getProjects(user_id=user_id, db=db)
     except Exception as e:
         log.error(f"[프로젝트 전체조회 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(

@@ -89,3 +89,23 @@ def getProjects(db: Session):
         raise RuntimeError(e)
     else:
         return rows
+
+def getUser(user_id: str, db: Session):
+    """유저 조회"""
+    try:
+        statement = text("""
+        SELECT id FROM users
+        WHERE id=(:user_id)
+        """)
+        row = db.execute(statement, {
+            "user_id": user_id
+        })
+        log.info(f"select user success: {user_id}")
+    except exc.IntegrityError as e:
+        log.error(f"[-] {e}이 user table에 없습니다.: {e}")
+        raise RuntimeError(e)
+    except Exception as e:
+        log.error(f"[-] other error: {e}")
+        raise RuntimeError(e)
+    else:
+        return row
