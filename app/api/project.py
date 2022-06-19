@@ -22,7 +22,7 @@ async def getAll(db: Session = Depends(get_db)):
     project_manager = ProjectManager()
 
     try:
-        status_code, detail = project_manager.getProjectALL(db=db)
+        status_code, detail = project_manager.getProjects(db=db)
     except Exception as e:
         log.error(f"[프로젝트 전체조회 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(

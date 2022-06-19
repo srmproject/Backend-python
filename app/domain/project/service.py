@@ -136,7 +136,7 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def getProjectALL(self, db) -> (int, ResponseGetProjectALL):
+    def getProjects(self, db) -> (int, ResponseGetProjectALL):
         """프로젝트 전체조회"""
         try:
             rows = project_crud.getProjectALL(db=db)
