@@ -107,20 +107,21 @@ class ProjectManager:
             log.error(f"[프로젝트 조회 오류] {request.project_name} 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    schemas.ResponseGetProject(
-                       id=-1,
-                       user_id=-1,
-                       name=request.project_name,
-                       error_detail="프로젝트 조회를 실패했습니다."
+                       project_id=-1,
+                       user_id=request.user_id,
+                       project_name=request.project_name,
+                       error_detail="데이터베이스 오류로 프로젝트 조회를 실패했습니다."
                    )
 
-        if result.rowcount != 1:
-            log.error(f"[프로젝트 조회 실패] 단일건 조회({request.project_name})지만 2개 이상 조회 되었습니다")
-            return status.HTTP_500_INTERNAL_SERVER_ERROR, \
+
+        if result.rowcount == 0:
+            log.error(f"[프로젝트 조회 실패] 프로젝트({request.project_name})가 존재하지 않습니다.")
+            return status.HTTP_404_NOT_FOUND, \
                    schemas.ResponseGetProject(
-                       id=-1,
-                       user_id=-1,
-                       name=request.project_name,
-                       error_detail="프로젝트 조회를 실패했습니다"
+                       project_id=-1,
+                       user_id=request.user_id,
+                       project_name=request.project_name,
+                       error_detail=f"{request.project_name}프로젝트가 존재하지 않습니다."
                    )
 
         project = {}
