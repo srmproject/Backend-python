@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+  namespace: infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - image: postgres
+        envFrom:
+        - configMapRef:
+            name: postgres-config
+        env:
+        - name: TZ
+          value: "Asia/Seoul"
+        name: postgres
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: postgres-mount
+      volumes:
+      - name: postgres-mount
+        persistentVolumeClaim:
+          claimName: postgres
