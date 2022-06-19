@@ -38,10 +38,10 @@ def deleteProject(request: RequestDeleteProject, db: Session):
         """)
         db.execute(statement, {
             "user_id": request.user_id,
-            "name": request.name
+            "name": request.project_name
         })
         db.commit()
-        log.info(f"delete project success: {request.name}")
+        log.info(f"delete project success: {request.project_name}")
     except exc.IntegrityError as e:
         log.error(f"[-] {e}이 project table에 없습니다.: {e}")
         db.rollback()
