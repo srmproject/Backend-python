@@ -17,7 +17,7 @@ class ProjectInfo(BaseModel):
     id: str
     name: str
 
-class ResponseGetProjectALL(BaseModel):
+class ResponseGetProjects(BaseModel):
     """프로젝트 전체조회 응답"""
     results: List[ProjectInfo]
     error_detail: str

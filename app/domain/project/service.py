@@ -7,7 +7,7 @@ from domain.project.schemas import (
     ResponseDeleteProject,
     ResponseGetProject,
     RequestGetProject,
-    ResponseGetProjectALL,
+    ResponseGetProjects,
     ProjectInfo
 )
 import domain.project.crud as project_crud
@@ -136,14 +136,14 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def getProjects(self, db) -> (int, ResponseGetProjectALL):
+    def getProjects(self, db) -> (int, ResponseGetProjects):
         """프로젝트 전체조회"""
         try:
             rows = project_crud.getProjectALL(db=db)
         except Exception as e:
             log.error(f"[프로젝트 전체 조회 오류] 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
-                   ResponseGetProjectALL(
+                   ResponseGetProjects(
                        results=[],
                        error_detail="프로젝트 조회를 실패했습니다."
                    )
@@ -159,7 +159,7 @@ class ProjectManager:
             )
 
         return status.HTTP_200_OK, \
-               ResponseGetProjectALL(
+               ResponseGetProjects(
                    results=projects,
                    error_detail=""
                )
