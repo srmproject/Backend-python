@@ -36,6 +36,7 @@ class ProjectManager:
                 log.error(f"[프로젝트 생성 오류] k8s namespace {request.name}이 이미 존재합니다")
                 return status.HTTP_409_CONFLICT, \
                        ResponseCreateProject(
+                           user_id=request.user_id,
                            name=request.name,
                            error_detail=f"{request.name}이 이미 존재합니다."
                        )
@@ -43,6 +44,7 @@ class ProjectManager:
             log.error(f"[프로젝트 생성 오류] k8s namespace {request.name} 기타 생성오류: {e.status}. {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseCreateProject(
+                       user_id=request.user_id,
                        name=request.name,
                        error_detail=str(e)
                    )
@@ -70,12 +72,14 @@ class ProjectManager:
 
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseCreateProject(
+                       user_id=request.user_id,
                        name=request.name,
                        error_detail="프로젝트 생성을 실패했습니다."
                    )
 
         return status.HTTP_201_CREATED, \
                ResponseCreateProject(
+                   user_id=request.user_id,
                    name=request.name,
                    error_detail=""
                )
@@ -98,6 +102,7 @@ class ProjectManager:
 
         return status.HTTP_200_OK, \
                ResponseDeleteProject(
+                   user_id=request.user_id,
                    name=request.name,
                    error_detail=""
                )
@@ -112,6 +117,7 @@ class ProjectManager:
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseGetProject(
                        id=-1,
+                       user_id=-1,
                        name=request.name,
                        error_detail="프로젝트 조회를 실패했습니다."
                    )
@@ -121,25 +127,27 @@ class ProjectManager:
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    ResponseGetProject(
                        id=-1,
+                       user_id=-1,
                        name=request.name,
                        error_detail="프로젝트 조회를 실패했습니다"
                    )
 
-        searched_project = {}
+        project = {}
         for row in result:
-            searched_project = dict(row)
+            project = dict(row)
 
         return status.HTTP_200_OK, \
                ResponseGetProject(
-                   id=searched_project["id"],
-                   name=searched_project["name"],
+                   project_id=project["id"],
+                   user_id=project["user_id"],
+                   name=project["name"],
                    error_detail=""
                )
 
     def getProjects(self, db) -> (int, ResponseGetProjects):
         """프로젝트 전체조회"""
         try:
-            rows = project_crud.getProjectALL(db=db)
+            rows = project_crud.getProjects(db=db)
         except Exception as e:
             log.error(f"[프로젝트 전체 조회 오류] 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
@@ -153,7 +161,8 @@ class ProjectManager:
             project = dict(row)
             projects.append(
                 ProjectInfo(
-                    id=project["id"],
+                    project_id=project["id"],
+                    user_id=project["user_id"],
                     name=project["name"]
                 )
             )
@@ -191,5 +200,13 @@ class ProjectManager:
           bool
             True: namespace 존재
             False: namespace 미존재
+        """
+        return True
+
+    def isExistDBUser(self, user_id: int) -> bool:
+        """
+        데이터베이스에 user가 존재하는지 확인
+        :param user_id:
+        :return:
         """
         return True

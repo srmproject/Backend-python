@@ -9,6 +9,8 @@ from domain.project.schemas import (
 )
 from domain.project.service import ProjectManager
 from logger import log
+from typing import Union
+
 
 router = APIRouter(
     prefix="/api/v1",
@@ -37,7 +39,7 @@ async def getAll(db: Session = Depends(get_db)):
 
 @router.get("/project")
 async def get(
-    name: str = None, db: Session = Depends(get_db)
+    name: Union[str, None] = None, user_id: Union[str, None] = None, db: Session = Depends(get_db)
     ):
     """프로젝트 단일조회"""
     log.info("============= /project/ is called ============= ")
@@ -46,10 +48,23 @@ async def get(
     if name is None:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content="이름을 입력하지 않았습니다"
+            content={
+                "error_detail": "이름을 입력하지 않았습니다"
+            }
         )
 
-    request = RequestGetProject(name=name)
+    if user_id is None:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "error_detail": "유저를 입력하지 않았습니다."
+            }
+        )
+
+    request = RequestGetProject(
+        name=name,
+        user_id=user_id
+    )
 
     try:
         status_code, detail = project_manager.getProject(request=request, db=db)
@@ -78,7 +93,7 @@ async def create(
         log.error(f"[프로젝트 생성 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=""
+            content={}
         )
 
     return JSONResponse(

@@ -54,7 +54,7 @@ def getProject(request: RequestGetProject, db: Session):
     """프로젝트 단일조회"""
     try:
         statement = text("""
-        SELECT id, name, description 
+        SELECT id, user_id, name, description 
         from projects 
         where user_id=(:user_id) and name=(:name)
         """)
@@ -72,11 +72,11 @@ def getProject(request: RequestGetProject, db: Session):
     else:
         return row
 
-def getProjectALL(db: Session):
+def getProjects(db: Session):
     """프로젝트 전체조회"""
     try:
         statement = text("""
-        SELECT id, name, description 
+        SELECT id, user_id, name, description 
         from projects
         """)
         rows = db.execute(statement, {})
