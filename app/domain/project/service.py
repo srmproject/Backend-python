@@ -1,22 +1,13 @@
 from fastapi import status
 from kubernetes.client.exceptions import ApiException
-from domain.project.schemas import (
-    RequestCreateProject,
-    ResponseCreateProject,
-    RequestDeleteProject,
-    ResponseDeleteProject,
-    ResponseGetProject,
-    RequestGetProject,
-    ResponseGetProjects,
-    ProjectInfo
-)
+from domain.project import schemas
 import domain.project.crud as project_crud
 from logger import log
 from module.k8s import JCPK8S
 
 
 class ProjectManager:
-    def createProject(self, request: RequestCreateProject, db) -> (int, ResponseCreateProject):
+    def createProject(self, request: schemas.RequestCreateProject, db) -> (int, schemas.ResponseCreateProject):
         """프로젝트 생성"""
         k8s = JCPK8S()
         log.info("[*] 프로젝트 생성 시작")
@@ -35,7 +26,7 @@ class ProjectManager:
             if e.status == 409:
                 log.error(f"[프로젝트 생성 오류] k8s namespace {request.project_name}이 이미 존재합니다")
                 return status.HTTP_409_CONFLICT, \
-                       ResponseCreateProject(
+                       schemas.ResponseCreateProject(
                            user_id=request.user_id,
                            project_name=request.project_name,
                            error_detail=f"{request.project_name}이 이미 존재합니다."
@@ -43,7 +34,7 @@ class ProjectManager:
 
             log.error(f"[프로젝트 생성 오류] k8s namespace {request.project_name} 기타 생성오류: {e.status}. {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
-                   ResponseCreateProject(
+                   schemas.ResponseCreateProject(
                        user_id=request.user_id,
                        project_name=request.project_name,
                        error_detail=str(e)
@@ -71,20 +62,20 @@ class ProjectManager:
                 pass
 
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
-                   ResponseCreateProject(
+                   schemas.ResponseCreateProject(
                        user_id=request.user_id,
                        project_name=request.project_name,
                        error_detail="프로젝트 생성을 실패했습니다."
                    )
 
         return status.HTTP_201_CREATED, \
-               ResponseCreateProject(
+               schemas.ResponseCreateProject(
                    user_id=request.user_id,
                    name=request.project_name,
                    error_detail=""
                )
 
-    def deleteProject(self, request: RequestDeleteProject, db) -> (int, ResponseDeleteProject):
+    def deleteProject(self, request: schemas.RequestDeleteProject, db) -> (int, schemas.ResponseDeleteProject):
         """프로젝트 삭제"""
         k8s = JCPK8S()
 
@@ -101,13 +92,13 @@ class ProjectManager:
             pass
 
         return status.HTTP_200_OK, \
-               ResponseDeleteProject(
+               schemas.ResponseDeleteProject(
                    user_id=request.user_id,
                    project_name=request.project_name,
                    error_detail=""
                )
 
-    def getProject(self, request: RequestGetProject, db) -> (int, ResponseGetProject):
+    def getProject(self, request: schemas.RequestGetProject, db) -> (int, schemas.ResponseGetProject):
         """프로젝트 단일조회"""
 
         try:
@@ -115,7 +106,7 @@ class ProjectManager:
         except Exception as e:
             log.error(f"[프로젝트 조회 오류] {request.project_name} 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
-                   ResponseGetProject(
+                   schemas.ResponseGetProject(
                        id=-1,
                        user_id=-1,
                        name=request.project_name,
@@ -125,7 +116,7 @@ class ProjectManager:
         if result.rowcount != 1:
             log.error(f"[프로젝트 조회 실패] 단일건 조회({request.project_name})지만 2개 이상 조회 되었습니다")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
-                   ResponseGetProject(
+                   schemas.ResponseGetProject(
                        id=-1,
                        user_id=-1,
                        name=request.project_name,
@@ -137,21 +128,21 @@ class ProjectManager:
             project = dict(row)
 
         return status.HTTP_200_OK, \
-               ResponseGetProject(
+               schemas.ResponseGetProject(
                    project_id=project["id"],
                    user_id=project["user_id"],
                    project_name=project["name"],
                    error_detail=""
                )
 
-    def getProjects(self, db) -> (int, ResponseGetProjects):
+    def getProjects(self, db) -> (int, schemas.ResponseGetProjects):
         """프로젝트 전체조회"""
         try:
             rows = project_crud.getProjects(db=db)
         except Exception as e:
             log.error(f"[프로젝트 전체 조회 오류] 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
-                   ResponseGetProjects(
+                   schemas.ResponseGetProjects(
                        results=[],
                        error_detail="프로젝트 조회를 실패했습니다."
                    )
@@ -160,7 +151,7 @@ class ProjectManager:
         for row in rows:
             project = dict(row)
             projects.append(
-                ProjectInfo(
+                schemas.ProjectInfo(
                     project_id=project["id"],
                     user_id=project["user_id"],
                     project_name=project["name"]
@@ -168,7 +159,7 @@ class ProjectManager:
             )
 
         return status.HTTP_200_OK, \
-               ResponseGetProjects(
+               schemas.ResponseGetProjects(
                    results=projects,
                    error_detail=""
                )
