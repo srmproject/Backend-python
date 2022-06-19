@@ -11,3 +11,29 @@ docker run --name=postegresql -d \
 -e POSTGRES_DB=jcp \
 postgres:12-alpine
 ```
+
+* kubernetes serviceaccount
+```sh
+kubectl create ns jcp
+```
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin
+  namespace: jcp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin
+  namespace: jcp
+```

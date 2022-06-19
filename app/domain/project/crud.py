@@ -51,7 +51,7 @@ def deleteProject(request: RequestDeleteProject, db: Session):
         raise RuntimeError(e)
 
 def getProject(request: RequestGetProject, db: Session):
-    """프로젝트 조회"""
+    """프로젝트 단일조회"""
     try:
         statement = text("""
         SELECT id, name, description 
@@ -71,3 +71,21 @@ def getProject(request: RequestGetProject, db: Session):
         raise RuntimeError(e)
     else:
         return row
+
+def getProjectALL(db: Session):
+    """프로젝트 전체조회"""
+    try:
+        statement = text("""
+        SELECT id, name, description 
+        from projects
+        """)
+        rows = db.execute(statement, {})
+        log.info(f"get projectALL success")
+    except exc.IntegrityError as e:
+        log.error(f"[-] {e}이 project table에 없습니다.: {e}")
+        raise RuntimeError(e)
+    except Exception as e:
+        log.error(f"[-] other error: {e}")
+        raise RuntimeError(e)
+    else:
+        return rows

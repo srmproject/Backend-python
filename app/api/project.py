@@ -11,15 +11,35 @@ from domain.project.service import ProjectManager
 from logger import log
 
 router = APIRouter(
-    prefix="/api/v1/project",
+    prefix="/api/v1",
     tags=["project"]
 )
 
-@router.get("/")
-async def project(
+@router.get("/projects")
+async def getAll(db: Session = Depends(get_db)):
+    """프로젝트 전체조회"""
+    log.info("============= /project/getALL is called ============= ")
+    project_manager = ProjectManager()
+
+    try:
+        status_code, detail = project_manager.getProjectALL(db=db)
+    except Exception as e:
+        log.error(f"[프로젝트 전체조회 서비스 호출오류] 예기치 못한 오류: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=""
+        )
+
+    return JSONResponse(
+        status_code=status_code,
+        content=detail.dict()
+    )
+
+@router.get("/project")
+async def get(
     name: str = None, db: Session = Depends(get_db)
     ):
-    """프로젝트 조회"""
+    """프로젝트 단일조회"""
     log.info("============= /project/ is called ============= ")
     project_manager = ProjectManager()
 
@@ -45,7 +65,7 @@ async def project(
         content=dict(detail)
     )
 
-@router.post("/")
+@router.post("/project")
 async def create(
     request: RequestCreateProject, db: Session = Depends(get_db)
     ):
@@ -66,7 +86,7 @@ async def create(
         content=dict(detail)
     )
 
-@router.delete("/")
+@router.delete("/project")
 async def delete(
     request: RequestDeleteProject, db: Session = Depends(get_db)
     ):

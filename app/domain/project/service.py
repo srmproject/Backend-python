@@ -6,7 +6,9 @@ from domain.project.schemas import (
     RequestDeleteProject,
     ResponseDeleteProject,
     ResponseGetProject,
-    RequestGetProject
+    RequestGetProject,
+    ResponseGetProjectALL,
+    ProjectInfo
 )
 import domain.project.crud as project_crud
 from logger import log
@@ -101,10 +103,10 @@ class ProjectManager:
                )
 
     def getProject(self, request: RequestGetProject, db) -> (int, ResponseGetProject):
-        """프로젝트 조회"""
+        """프로젝트 단일조회"""
 
         try:
-            result = project_crud.getProject(requset=request, db=db)
+            result = project_crud.getProject(request=request, db=db)
         except Exception as e:
             log.error(f"[프로젝트 조회 오류] {request.name} 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
@@ -131,6 +133,34 @@ class ProjectManager:
                ResponseGetProject(
                    id=searched_project["id"],
                    name=searched_project["name"],
+                   error_detail=""
+               )
+
+    def getProjectALL(self, db) -> (int, ResponseGetProjectALL):
+        """프로젝트 전체조회"""
+        try:
+            rows = project_crud.getProjectALL(db=db)
+        except Exception as e:
+            log.error(f"[프로젝트 전체 조회 오류] 조회 실패 -> 데이터베이스 오류: {e}")
+            return status.HTTP_500_INTERNAL_SERVER_ERROR, \
+                   ResponseGetProjectALL(
+                       results=[],
+                       error_detail="프로젝트 조회를 실패했습니다."
+                   )
+
+        projects = []
+        for row in rows:
+            project = dict(row)
+            projects.append(
+                ProjectInfo(
+                    id=project["id"],
+                    name=project["name"]
+                )
+            )
+
+        return status.HTTP_200_OK, \
+               ResponseGetProjectALL(
+                   results=projects,
                    error_detail=""
                )
 
