@@ -15,17 +15,17 @@ def test_create_job():
     namespace = "default"
     job_name = "jcp-k8s-jobtest-1"
 
-    container_template = jcp_k8s.generateContainerTemplate(name=job_name, image="busybox")
+    container_template = jcp_k8s.generate_container_template(name=job_name, image="busybox")
     pod_template = jcp_k8s.generatePodTemplate(
         name=job_name,
         namespace=namespace,
         containers=container_template,
     )
 
-    job_template = jcp_k8s.createJobTemplate(
+    job_template = jcp_k8s.create_job_template(
         namespace=namespace,
         job_name=job_name,
         pod_template=pod_template
     )
 
-    created_job_obj = jcp_k8s.createJob(namespace=namespace, job_template=job_template)
+    created_job_obj = jcp_k8s.create_job(namespace=namespace, job_template=job_template)

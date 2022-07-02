@@ -36,7 +36,7 @@ class JCPK8S:
         ns = client.V1Namespace()
         self.v1.delete_namespace(namespace)
 
-    def generateContainerTemplate(self, name, image, args=None, command=None) -> client.V1Container:
+    def generate_container_template(self, name, image, args=None, command=None) -> client.V1Container:
         """컨테이너 템플릿 생성"""
         return client.V1Container(
             name=name,
@@ -58,7 +58,7 @@ class JCPK8S:
             metadata=client.V1ObjectMeta(name=name, labels={"app": name}),
         )
 
-    def createJobTemplate(self, namespace: str, job_name: str, pod_template: client.V1PodTemplateSpec):
+    def create_job_template(self, namespace: str, job_name: str, pod_template: client.V1PodTemplateSpec):
         """
         job 생성
 
@@ -84,6 +84,6 @@ class JCPK8S:
             spec=spec
         )
 
-    def createJob(self, namespace, job_template) -> client.V1Job:
+    def create_job(self, namespace, job_template) -> client.V1Job:
         batch_api = client.BatchV1Api()
         return batch_api.create_namespaced_job(namespace, job_template)
