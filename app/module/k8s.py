@@ -1,6 +1,7 @@
 from kubernetes import client, config
 from config import cnf
 from logger import log
+from typing import Union
 
 
 class JCPK8S:
@@ -36,17 +37,25 @@ class JCPK8S:
         ns = client.V1Namespace()
         self.v1.delete_namespace(namespace)
 
-    def generate_container_template(self, name, image, args=None, command=None) -> client.V1Container:
+    def generate_container_template(self, name, image, envs=None, args=None, command=None) -> client.V1Container:
         """컨테이너 템플릿 생성"""
         return client.V1Container(
             name=name,
             image=image,
             image_pull_policy="Always",
+            env=envs,
             args=args,
             command=command
         )
 
-    def generatePodTemplate(self, name: str, namespace: str, containers) -> client.V1PodTemplateSpec:
+    def generate_env_template(self, name: str, value: str):
+        """env템플릿 생성"""
+        return client.V1EnvVar(
+            name=name,
+            value=value,
+        )
+
+    def generate_pod_template(self, name: str, containers, namespace: Union[str, None]=None) -> client.V1PodTemplateSpec:
         """
         pod 템플릿 생성
         :param name:
@@ -55,7 +64,7 @@ class JCPK8S:
         """
         return client.V1PodTemplateSpec(
             spec=client.V1PodSpec(restart_policy="Never", containers=[containers]),
-            metadata=client.V1ObjectMeta(name=name, labels={"app": name}),
+            metadata=client.V1ObjectMeta(name=name, namespace=namespace, labels={"app": name}),
         )
 
     def create_job_template(self, namespace: str, job_name: str, pod_template: client.V1PodTemplateSpec):
