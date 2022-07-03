@@ -13,32 +13,36 @@ class JCPK8S:
         elif cnf.ENV_STATE == "dev":
             log.info("[*][*] dev 설정 로드")
             config.load_incluster_config()
-        self.v1 = client.CoreV1Api()
 
-    def createNamespace(self, namespace) -> None:
-        """
-        namespace 생성
+    def create_namespace(self, namespace) -> None:
+        """namespace 생성"""
 
-        :param
-          namespace: namespace 이름
-        """
+        v1 = client.CoreV1Api()
         ns = client.V1Namespace()
         ns.metadata = client.V1ObjectMeta(name=namespace)
-        self.v1.create_namespace(ns)
+        v1.create_namespace(ns)
 
-    def deleteNamespace(self, namespace) -> None:
-        """
-        namespace 삭제
+    def delete_namespace(self, namespace) -> None:
+        """namespace 삭제"""
 
-        :param
-          namespace: namespace 이름
-        :return:
-        """
-        ns = client.V1Namespace()
-        self.v1.delete_namespace(namespace)
+        v1 = client.CoreV1Api()
+        v1.delete_namespace(namespace)
+
+    def is_exist_namespace(self, namespace):
+        """namespace 존재확인"""
+
+        v1 = client.CoreV1Api()
+        namespaces = v1.list_namespace()
+
+        for item in namespaces.items:
+            if item.metadata.name == namespace:
+                return True
+
+        return False
 
     def generate_container_template(self, name, image, envs=None, args=None, command=None) -> client.V1Container:
         """컨테이너 템플릿 생성"""
+
         return client.V1Container(
             name=name,
             image=image,
@@ -50,6 +54,7 @@ class JCPK8S:
 
     def generate_env_template(self, name: str, value: str):
         """env템플릿 생성"""
+
         return client.V1EnvVar(
             name=name,
             value=value,
@@ -62,6 +67,7 @@ class JCPK8S:
         :param namespace:
         :return:
         """
+
         return client.V1PodTemplateSpec(
             spec=client.V1PodSpec(restart_policy="Never", containers=[containers]),
             metadata=client.V1ObjectMeta(name=name, namespace=namespace, labels={"app": name}),
@@ -93,6 +99,8 @@ class JCPK8S:
             spec=spec
         )
 
-    def create_job(self, namespace, job_template) -> client.V1Job:
+    def execute_job(self, namespace, job_template) -> client.V1Job:
+        """job 실행"""
+
         batch_api = client.BatchV1Api()
         return batch_api.create_namespaced_job(namespace, job_template)

@@ -26,7 +26,7 @@ class ProjectManager:
         # 쿠버네티스 namespace 생성
         try:
             log.info("[*] 쿠버네티스 namespace 생성 시작")
-            k8s.createNamespace(namespace=request.project_name)
+            k8s.create_namespace(namespace=request.project_name)
             log.info("[*] 쿠버네티스 namespace 생성 종료")
         except ApiException as e:
             if e.status == 409:
@@ -63,7 +63,7 @@ class ProjectManager:
 
             # 생성했던 쿠버네티스 네임스페이스 삭제
             try:
-                k8s.deleteNamespace(namespace=request.project_name)
+                k8s.delete_namespace(namespace=request.project_name)
             except Exception:
                 pass
 
@@ -97,7 +97,7 @@ class ProjectManager:
 
         # 쿠버네티스 네임스페이스 삭제
         try:
-            k8s.deleteNamespace(namespace=request.project_name)
+            k8s.delete_namespace(namespace=request.project_name)
         except ApiException as e:
             pass
 
@@ -197,6 +197,28 @@ class ProjectManager:
                    results=projects,
                    error_detail=""
                )
+
+    def is_exist_project_from_projectid(self, project_id: str, db):
+        """프로젝트 id로 프로젝트가 있는지 확인"""
+
+        rows = project_crud.get_project_from_projectid(project_id=project_id, db=db)
+        if rows.rowcount == 0:
+            return False
+
+        return True
+
+    def get_project_from_projectid(self, project_id: str, db):
+        """프로젝트 id로 프로젝트 조회"""
+
+        rows = project_crud.get_project_from_projectid(project_id=project_id, db=db)
+        if rows.rowcount == 0:
+            return None
+
+        projects = []
+        for row in rows:
+            projects.append(dict(row))
+
+        return projects[0]
 
     def create_project_validation(self, request: schemas.RequestCreateProject, db) -> bool:
         """

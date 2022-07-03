@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 @router.get("/projects")
-async def getAll(
+async def get_projects(
         user_id: Union[str, None] = None,
         db: Session = Depends(get_db)):
     """프로젝트 전체조회"""
@@ -35,7 +35,7 @@ async def getAll(
     project_manager = ProjectManager()
 
     try:
-        status_code, detail = project_manager.getProjects(user_id=user_id, db=db)
+        status_code, detail = project_manager.get_projects_from_userid(user_id=user_id, db=db)
     except Exception as e:
         log.error(f"[프로젝트 전체조회 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(
@@ -49,7 +49,7 @@ async def getAll(
     )
 
 @router.get("/project")
-async def get(
+async def get_project(
     project_name: Union[str, None] = None, user_id: Union[str, None] = None, db: Session = Depends(get_db)
     ):
     """프로젝트 단일조회"""
@@ -78,7 +78,7 @@ async def get(
     )
 
     try:
-        status_code, detail = project_manager.getProject(request=request, db=db)
+        status_code, detail = project_manager.get_project_from_userid(request=request, db=db)
     except Exception as e:
         log.error(f"[프로젝트 조회 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(
@@ -99,7 +99,7 @@ async def create(
     log.info("============= /project/create is called ============= ")
     project_manager = ProjectManager()
     try:
-        status_code, detail = project_manager.createProject(request=request, db=db)
+        status_code, detail = project_manager.create_project(request=request, db=db)
     except Exception as e:
         log.error(f"[프로젝트 생성 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(
@@ -125,7 +125,7 @@ async def delete(
     log.info("============= /project/delete is called ============= ")
     project_manager = ProjectManager()
     try:
-        status_code, detail = project_manager.deleteProject(request=request, db=db)
+        status_code, detail = project_manager.delete_project(request=request, db=db)
     except Exception as e:
         log.error(f"[프로젝트 삭제 서비스 호출오류] 예기치 못한 오류: {e}")
         return JSONResponse(

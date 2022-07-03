@@ -94,6 +94,20 @@ def get_projects_from_userid(db: Session):
     else:
         return rows
 
+def get_project_from_projectid(project_id: str, db: Session):
+    """project_id로 프로젝트 조회"""
+
+    statement = text("""
+        SELECT id, user_id, name, description 
+        from projects 
+        where id=(:project_id)
+    """)
+
+    rows = db.execute(statement, {
+        "project_id": project_id
+    })
+    return rows
+
 def get_user(user_id: str, db: Session):
     """유저 조회"""
 
