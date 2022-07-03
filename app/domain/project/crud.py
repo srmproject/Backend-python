@@ -8,8 +8,9 @@ from sqlalchemy import exc, text
 from logger import log
 
 
-def createProject(request: RequestCreateProject, db: Session):
+def create_project(request: RequestCreateProject, db: Session):
     """프로젝트 생성"""
+
     try:
         statement = text("""
         INSERT INTO 
@@ -32,6 +33,7 @@ def createProject(request: RequestCreateProject, db: Session):
 
 def deleteProject(request: RequestDeleteProject, db: Session):
     """프로젝트 삭제"""
+
     try:
         statement = text("""
         DELETE FROM projects where user_id=(:user_id) and name=(:name)
@@ -50,8 +52,9 @@ def deleteProject(request: RequestDeleteProject, db: Session):
         db.rollback()
         raise RuntimeError(e)
 
-def getProject(request: RequestGetProject, db: Session):
+def get_project_from_userid(request: RequestGetProject, db: Session):
     """프로젝트 단일조회"""
+
     try:
         statement = text("""
         SELECT id, user_id, name, description 
@@ -72,8 +75,9 @@ def getProject(request: RequestGetProject, db: Session):
     else:
         return row
 
-def getProjects(db: Session):
+def get_projects_from_userid(db: Session):
     """프로젝트 전체조회"""
+
     try:
         statement = text("""
         SELECT id, user_id, name, description 
@@ -90,8 +94,9 @@ def getProjects(db: Session):
     else:
         return rows
 
-def getUser(user_id: str, db: Session):
+def get_user(user_id: str, db: Session):
     """유저 조회"""
+
     try:
         statement = text("""
         SELECT id FROM users

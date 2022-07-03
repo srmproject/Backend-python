@@ -7,13 +7,14 @@ from module.k8s import JCPK8S
 
 
 class ProjectManager:
-    def createProject(self, request: schemas.RequestCreateProject, db) -> (int, schemas.ResponseCreateProject):
+    def create_project(self, request: schemas.RequestCreateProject, db) -> (int, schemas.ResponseCreateProject):
         """프로젝트 생성"""
+
         k8s = JCPK8S()
         log.info("[*] 프로젝트 생성 시작")
 
         log.info("[*] 프로젝트 유효성검사 시작")
-        if not self.createProjectValid(request=request, db=db):
+        if not self.create_project_validation(request=request, db=db):
             return status.HTTP_401_UNAUTHORIZED, \
                    schemas.ResponseCreateProject(
                        user_id=request.user_id,
@@ -51,7 +52,7 @@ class ProjectManager:
         # db 업데이트
         try:
             log.info("[*] 프로젝트 DB 등록 시작")
-            project_crud.createProject(request=request, db=db)
+            project_crud.create_project(request=request, db=db)
             log.info("[*] 프로젝트 DB 등록 종료")
         except Exception as e:
             db_error_code = e.args[0].orig.pgcode
@@ -80,12 +81,13 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def deleteProject(self, request: schemas.RequestDeleteProject, db) -> (int, schemas.ResponseDeleteProject):
+    def delete_project(self, request: schemas.RequestDeleteProject, db) -> (int, schemas.ResponseDeleteProject):
         """프로젝트 삭제"""
+
         k8s = JCPK8S()
 
         # 유저 확인
-        if not self.isExistDBUser(user_id=request.user_id, db=db):
+        if not self.is_exist_user(user_id=request.user_id, db=db):
             return status.HTTP_401_UNAUTHORIZED, \
                    schemas.ResponseDeleteProject(
                        user_id=request.user_id,
@@ -112,10 +114,11 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def getProject(self, request: schemas.RequestGetProject, db) -> (int, schemas.ResponseGetProject):
+    def get_project_from_userid(self, request: schemas.RequestGetProject, db) -> (int, schemas.ResponseGetProject):
         """프로젝트 단일조회"""
+
         # 유저 확인
-        if not self.isExistDBUser(user_id=request.user_id, db=db):
+        if not self.is_exist_user(user_id=request.user_id, db=db):
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    schemas.ResponseGetProject(
                        project_id=-1,
@@ -125,7 +128,7 @@ class ProjectManager:
                    )
 
         try:
-            result = project_crud.getProject(request=request, db=db)
+            result = project_crud.get_project_from_userid(request=request, db=db)
         except Exception as e:
             log.error(f"[프로젝트 조회 오류] {request.project_name} 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
@@ -135,7 +138,6 @@ class ProjectManager:
                        project_name=request.project_name,
                        error_detail="데이터베이스 오류로 프로젝트 조회를 실패했습니다."
                    )
-
 
         if result.rowcount == 0:
             log.error(f"[프로젝트 조회 실패] 프로젝트({request.project_name})가 존재하지 않습니다.")
@@ -159,17 +161,18 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def getProjects(self, user_id: str, db) -> (int, schemas.ResponseGetProjects):
-        """프로젝트 전체조회"""
+    def get_projects_from_userid(self, user_id: str, db) -> (int, schemas.ResponseGetProjects):
+        """유저가 관리하는 프로젝트 전체조회"""
+
         # 유저 확인
-        if not self.isExistDBUser(user_id=user_id, db=db):
+        if not self.is_exist_user(user_id=user_id, db=db):
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
                    schemas.ResponseGetProjects(
                        results=[],
                        error_detail=f"user_id {user_id}가 존재하지 않습니다."
                    )
         try:
-            rows = project_crud.getProjects(db=db)
+            rows = project_crud.get_projects_from_userid(db=db)
         except Exception as e:
             log.error(f"[프로젝트 전체 조회 오류] 조회 실패 -> 데이터베이스 오류: {e}")
             return status.HTTP_500_INTERNAL_SERVER_ERROR, \
@@ -195,7 +198,7 @@ class ProjectManager:
                    error_detail=""
                )
 
-    def createProjectValid(self, request: schemas.RequestCreateProject, db) -> bool:
+    def create_project_validation(self, request: schemas.RequestCreateProject, db) -> bool:
         """
         프로젝트 생성 유효성 검사
           ① k8s namespace 확인
@@ -208,10 +211,11 @@ class ProjectManager:
             True: 유효성 검사 성공
             False: 유효성 검사 실패
         """
-        return self.isExistK8sNamespace(namespace=request.project_name) \
-               and self.isExistDBUser(user_id=request.user_id, db=db)
 
-    def isExistK8sNamespace(self, namespace) -> bool:
+        return self.is_exist_namespace(namespace=request.project_name) \
+               and self.is_exist_user(user_id=request.user_id, db=db)
+
+    def is_exist_namespace(self, namespace) -> bool:
         """
         쿠버네티스 namespace 있는지 확인
 
@@ -223,17 +227,20 @@ class ProjectManager:
             True: namespace 존재
             False: namespace 미존재
         """
+
         return True
 
-    def isExistDBUser(self, user_id: str, db) -> bool:
+    def is_exist_user(self, user_id: str, db) -> bool:
         """
-        데이터베이스에 user가 존재하는지 확인
+        user가 존재하는지 확인
         :param user_id:
         :return:
         """
-        rows = project_crud.getUser(user_id=user_id, db=db)
+
+        rows = project_crud.get_user(user_id=user_id, db=db)
         if rows.rowcount == 0:
             log.error(f"user {user_id}가 존재하지 않습니다.")
             return False
 
         return True
+
