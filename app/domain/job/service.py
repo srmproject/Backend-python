@@ -85,7 +85,7 @@ class JobManager:
         if "_" in request.job_name:
             error_msg = "job[{}] 이름에 '_'가 포함되면 안됩니다. 다시 입력하세요".format(
                 request.job_name,
-                ErrorCode.CREATE_JOB_VALIDATION_NAME
+                ErrorCode.CREATE_JOB_VALIDATION_NAME_IS_NOT_EXIST
             )
             log.error(f"{error_msg}. 상세정보->{json.dumps(request.dict())}")
             raise HTTPException(
@@ -109,7 +109,7 @@ class JobManager:
         if not self.jcp_k8s.is_exist_namespace(project["name"]):
             error_msg = "job[{}] 생성을 실패했습니다[에러코드: {}]. 관리자에게 문의하세요".format(
                 request.job_name,
-                ErrorCode.CREATE_JOB_VALIDATION_NAMESPACE
+                ErrorCode.CREATE_JOB_VALIDATION_NAMESPACE_IS_NOT_EXIST
             )
 
             log.error(f"{error_msg}. 상세정보->{json.dumps(request.dict())}")
