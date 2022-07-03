@@ -17,11 +17,11 @@ def createProject(request: RequestCreateProject, db: Session):
             VALUES(:name, :user_id ,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
         """)
         db.execute(statement, {
-            "name": request.name,
+            "name": request.project_name,
             "user_id": request.user_id
         })
         db.commit()
-        log.info(f"create project success: {request.name}")
+        log.info(f"create project success: {request.project_name}")
     except exc.IntegrityError as e:
         db.rollback()
         raise RuntimeError(e)
