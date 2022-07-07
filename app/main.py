@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from config import cnf
 from api.project import router as project_router
+from api.utils import router as utils_router
 from logger import log
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,6 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(project_router)
+app.include_router(utils_router)
 
 @app.get("/")
 def read_root():
